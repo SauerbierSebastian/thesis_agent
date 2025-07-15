@@ -126,4 +126,4 @@ class ThesisAIBrainstormAgent:
         return prompt
 
 # Global AI Brainstorm instance
-ai_brainstorm_agent = ThesisAIBrainstormAgent()
+ai_brainstorm = ThesisAIBrainstormAgent()

@@ -26,6 +26,7 @@ from backend.app.models.schemas import (
     ProcrastinationLevel, WritingStyle
 )
 from backend.app.services.ai_service import ThesisAIPlannerAgent
+from backend.app.services.ai_brainstorm import ThesisAIBrainstormAgent
 from backend.app.services.email_service import EmailService
 from backend.app.integrations.notion_client import NotionThesisManager
 
@@ -33,7 +34,7 @@ from backend.app.integrations.notion_client import NotionThesisManager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Simple lifespan manager."""
-    global ai_service, email_service
+    global ai_service, email_service, ai_brainstorm
     
     print("🚀 Starting simplified Thesis Helper...")
     print("🚀 Initializing services...")
@@ -55,6 +56,13 @@ async def lifespan(app: FastAPI):
         email_service = None
     
     print(f"🔍 Service status: AI={ai_service is not None}, Email={email_service is not None}")
+
+    try:
+        ai_brainstorm = ThesisAIBrainstormAgent()
+        print("✅ AI brainstorming service initialized successfully")
+    except Exception as e:
+        print(f"❌ AI brainstorming service initialization failed: {e}")
+        ai_brainstorm = None
     
     if ai_service is None and email_service is None:
         print("⚠️ WARNING: No services initialized successfully")
@@ -62,6 +70,8 @@ async def lifespan(app: FastAPI):
         print("⚠️ WARNING: AI service failed to initialize")
     elif email_service is None:
         print("⚠️ WARNING: Email service failed to initialize")
+    elif ai_brainstorm is None:
+        print("⚠️ WARNING: AI brainstorming service failed to initialize")
     else:
         print("✅ All services initialized successfully")
     
@@ -90,6 +100,7 @@ app.add_middleware(
 # Global services
 ai_service = None
 email_service = None
+ai_brainstorm = None
 
 
 @app.get("/")
@@ -329,6 +340,21 @@ async def get_sample_user():
         "daily_email_time": "08:00",
         "timezone": "UTC"
     }
+
+@app.get("/brainstorm")
+async def brainstorm(user_data: UserQuestionnaireRequest):
+    """Brainstorm thesis ideas using AI."""
+    if not ai_brainstorm:
+        raise HTTPException(status_code=503, detail="AI service not available")
+    
+    try:
+        brainstormed_ideas = ai_brainstorm.brainstorm(user_data)
+        return {
+            "success": True,
+            "ideas": brainstormed_ideas
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Brainstorming failed: {str(e)}")
 
 
 if __name__ == "__main__":
