@@ -148,3 +148,33 @@ body {
     @apply px-4;
   }
 } 
+
+/* Chat styles */
+.brainstorm-container {
+  @apply flex flex-col h-full;
+}
+
+.brainstorm-chat-description-split {
+  @apply flex flex-row flex-1;
+}
+
+.brainstorm-chat {
+  @apply flex flex-col overflow-y-auto w-1/2;
+}
+
+.brainstorm-chat-user-bubble {
+  @apply self-start max-w-[70%];
+}
+
+.brainstorm-chat-ai-bubble {
+  @apply self-end;
+}
+
+.brainstorm-description-preview {
+  @apply w-1/2;
+}
+
+.brainstorm-chat-input {
+  @apply min-h-[3em] max-h-[6em] max-h-[30%] overflow-auto;
+}
+
